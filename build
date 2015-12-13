@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e # fail on error
+
+echo "Building project"
+godep go test ./...
+golint ./...
+godep go install
+go fmt ./...
+echo "Built and tested"
