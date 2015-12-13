@@ -5,11 +5,11 @@ A library that supplies an http handler function to collect data according to a 
 
 ## Build and test this project
 
-   ./build
+    ./build
 
 ##  Implementation
 
 Go get this project and import as a dependency to a web app. Implement as an http.HandlerFunc on a route like:
 
-      mux.HandleFunc("/collect", CollectData)
+    mux.HandleFunc("/collect", CollectData)
 
