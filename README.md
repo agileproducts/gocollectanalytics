@@ -11,5 +11,7 @@ A library that supplies an http handler function to collect data according to a 
 
 Go get this project and import as a dependency to a web app. Implement as an http.HandlerFunc on a route like:
 
-    mux.HandleFunc("/collect", gocollectanalytics.CollectData)
+    collector, err := gocollectanalytics.NewCollector("log")
+    
+    mux.HandleFunc("/collect", collector.CollectData)
 

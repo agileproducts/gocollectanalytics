@@ -11,6 +11,12 @@ import (
 	"net/url"
 )
 
+// A Collector provides handling for receiving data and recording it to
+// the given store
+type Collector struct {
+	Store string
+}
+
 // An Event is a user interactions with content that can be tracked independently
 // from a web page or a screen load. A simple example would be clicking a link.
 type Event struct {
@@ -25,20 +31,43 @@ type Event struct {
 // mulitpleErrors are a slice of Errors
 type multipleErrors []error
 
+//NewCollector creates a Collector with a given type of store
+func NewCollector(ds string) (collector *Collector, err error) {
+
+	if ds != "log" {
+		err = errors.New("only datastore of type 'log' are currently supported")
+	}
+
+	if err != nil {
+		return
+	}
+
+	collector = new(Collector)
+	collector.Store = ds
+
+	return
+
+}
+
 // CollectData is a http.HandlerFunc to parse and validate querystring data
 // then save it as the appropriate type in the specified datastore.
-func CollectData(w http.ResponseWriter, r *http.Request) {
+func (s *Collector) CollectData(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	dataValid, err := validateParameters(params)
 	if dataValid != true {
 		log.Print(err)
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
-		//e := createEvent(params)
-		//saveEvent(e)
+		e := createEvent(params)
+		s.saveEvent(e)
 		w.WriteHeader(http.StatusOK)
 		//fmt.Fprint(w, "collected ok")
 	}
+}
+
+func (s *Collector) saveEvent(e Event) string {
+	log.Printf("Saving to %s %+v", s, e)
+	return s.Store
 }
 
 // createEvent turns the data paramaters associated with a hit type of 'event'
