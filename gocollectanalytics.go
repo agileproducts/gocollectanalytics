@@ -14,7 +14,21 @@ import (
 // A Collector provides handling for receiving data and recording it to
 // the given store
 type Collector struct {
-	Store string
+	Store Datastore
+}
+
+// A Datastore is a place to store data
+type Datastore interface {
+	logEvent(Event)
+}
+
+// A Logstore is a datastore that simply records to log
+type Logstore struct{}
+
+// A KeenIOstore records to Keen IO
+type KeenIOstore struct {
+	writeKey  string
+	projectID string
 }
 
 // An Event is a user interactions with content that can be tracked independently
@@ -43,7 +57,7 @@ func NewCollector(ds string) (collector *Collector, err error) {
 	}
 
 	collector = new(Collector)
-	collector.Store = ds
+	collector.Store = new(KeenIOstore)
 
 	return
 
@@ -66,8 +80,16 @@ func (s *Collector) CollectData(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Collector) saveEvent(e Event) string {
-	log.Printf("Saving to %s %+v", s, e)
-	return s.Store
+	s.Store.logEvent(e)
+	return "log"
+}
+
+func (ls Logstore) logEvent(e Event) {
+	log.Printf("Saving to %s %+v", ls, e)
+}
+
+func (ks KeenIOstore) logEvent(e Event) {
+	log.Printf("Saving to %s %+v", ks, e)
 }
 
 // createEvent turns the data paramaters associated with a hit type of 'event'
