@@ -23,13 +23,7 @@ type Datastore interface {
 }
 
 // A Logstore is a datastore that simply records to log
-type Logstore struct{}
-
-// A KeenIOstore records to Keen IO
-type KeenIOstore struct {
-	writeKey  string
-	projectID string
-}
+type LogStore struct{}
 
 // An Event is a user interactions with content that can be tracked independently
 // from a web page or a screen load. A simple example would be clicking a link.
@@ -57,7 +51,7 @@ func NewCollector(ds string) (collector *Collector, err error) {
 	}
 
 	collector = new(Collector)
-	collector.Store = new(KeenIOstore)
+	collector.Store = new(LogStore)
 
 	return
 
@@ -84,12 +78,8 @@ func (s *Collector) saveEvent(e Event) string {
 	return "log"
 }
 
-func (ls Logstore) logEvent(e Event) {
+func (ls LogStore) logEvent(e Event) {
 	log.Printf("Saving to %s %+v", ls, e)
-}
-
-func (ks KeenIOstore) logEvent(e Event) {
-	log.Printf("Saving to %s %+v", ks, e)
 }
 
 // createEvent turns the data paramaters associated with a hit type of 'event'
