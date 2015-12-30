@@ -2,6 +2,8 @@
 
 set -e # fail on error
 
+export KEENIO_WRITE_KEY
+export KEENIO_PROJECT_ID
 echo "Building project"
 godep go test ./...
 golint ./...

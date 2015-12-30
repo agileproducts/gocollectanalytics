@@ -5,6 +5,7 @@ Google Analytics -style styntax and save it in the desired datastore
 package gocollectanalytics
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -17,42 +18,25 @@ type Collector struct {
 	Store Datastore
 }
 
-// A Datastore is a place to store data
+// A Datastore is any place to store data. It must satisfy this interface,
+// with a logDatapoint() method that accepts json
 type Datastore interface {
-	logEvent(Event)
+	logDatapoint(interface{})
 }
 
 // A Logstore is a datastore that simply records to log
 type LogStore struct{}
 
-// An Event is a user interactions with content that can be tracked independently
-// from a web page or a screen load. A simple example would be clicking a link.
-type Event struct {
-	Site     string `json:"site"`
-	ClientID string `json:"clientid"`
-	Category string `json:"category"`
-	Action   string `json:"action"`
-	Label    string `json:"label"`
-	Value    int    `json:"value"`
-}
-
-// mulitpleErrors are a slice of Errors
-type multipleErrors []error
-
 //NewCollector creates a Collector with a given type of store
 func NewCollector(ds string) (collector *Collector, err error) {
 
-	if ds != "log" {
-		err = errors.New("only datastore of type 'log' are currently supported")
-	}
-
-	if err != nil {
+	if ds == "log" {
+		collector = new(Collector)
+		collector.Store = new(LogStore)
 		return
 	}
 
-	collector = new(Collector)
-	collector.Store = new(LogStore)
-
+	err = errors.New("only datastores of type 'log' or 'keenio' are currently supported")
 	return
 
 }
@@ -67,20 +51,36 @@ func (s *Collector) CollectData(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		e := createEvent(params)
-		s.saveEvent(e)
+		s.Store.logDatapoint(e)
 		w.WriteHeader(http.StatusOK)
 		//fmt.Fprint(w, "collected ok")
 	}
 }
 
-func (s *Collector) saveEvent(e Event) string {
-	s.Store.logEvent(e)
-	return "log"
+func (ls LogStore) logDatapoint(datatype interface{}) {
+
+	json, err := json.Marshal(datatype)
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	log.Printf("%+s", json)
 }
 
-func (ls LogStore) logEvent(e Event) {
-	log.Printf("Saving to %s %+v", ls, e)
+// An Event is a user interactions with content that can be tracked independently
+// from a web page or a screen load. A simple example would be clicking a link.
+type Event struct {
+	Site     string `json:"site"`
+	ClientID string `json:"clientid"`
+	Category string `json:"category"`
+	Action   string `json:"action"`
+	Label    string `json:"label"`
+	Value    int    `json:"value"`
 }
+
+// mulitpleErrors are a slice of Errors
+type multipleErrors []error
 
 // createEvent turns the data paramaters associated with a hit type of 'event'
 // into a golang type Event
