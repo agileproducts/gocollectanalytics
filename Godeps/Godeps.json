@@ -2,10 +2,5 @@
 	"ImportPath": "github.com/agileproducts/gocollectanalytics",
 	"GoVersion": "go1.4.2",
 	"Deps": [
-		{
-			"ImportPath": "github.com/joho/godotenv",
-			"Comment": "v1-10-g4ed1339",
-			"Rev": "4ed13390c0acd2ff4e371e64d8b97c8954138243"
-		}
 	]
 }
