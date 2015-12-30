@@ -49,7 +49,7 @@ func (s *Collector) CollectData(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		e := createEvent(params)
-		s.Store.logDatapoint(e)
+		go s.Store.logDatapoint(e) // naive concurrency: http://marcio.io/2015/07/handling-1-million-requests-per-minute-with-golang/
 		w.WriteHeader(http.StatusOK)
 		//fmt.Fprint(w, "collected ok")
 	}

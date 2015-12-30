@@ -84,7 +84,6 @@ func (ks *KeenIOStore) send(json []byte, path string) (*http.Response, error) {
 
 	// construct url
 	url := baseURL + ks.config.ProjectID + path
-	log.Printf("%+s", url)
 
 	// assemble http request
 	req, err := http.NewRequest("POST", url, bytes.NewReader(json))
