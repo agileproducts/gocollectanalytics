@@ -18,7 +18,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	logCollector, _ := gocollectanalytics.NewCollector("log")
+	logCollector, _ := gocollectanalytics.LogCollector()
 
 	kc := gocollectanalytics.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
 

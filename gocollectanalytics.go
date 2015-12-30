@@ -19,24 +19,22 @@ type Collector struct {
 }
 
 // A Datastore is any place to store data. It must satisfy this interface,
-// with a logDatapoint() method that accepts json
+// with a logDatapoint() method that accepts a data type
 type Datastore interface {
 	logDatapoint(interface{})
 }
 
-// A Logstore is a datastore that simply records to log
+// A LogStore is a datastore that simply records to log, useful for debugging
 type LogStore struct{}
 
-//NewCollector creates a Collector with a given type of store
-func NewCollector(ds string) (collector *Collector, err error) {
+//LogCollector returns a collector that just writes to a logfile datastore
+func LogCollector() (collector *Collector, err error) {
 
-	if ds == "log" {
-		collector = new(Collector)
-		collector.Store = new(LogStore)
-		return
-	}
+	err = nil
 
-	err = errors.New("only datastores of type 'log' or 'keenio' are currently supported")
+	collector = new(Collector)
+	collector.Store = new(LogStore)
+
 	return
 
 }

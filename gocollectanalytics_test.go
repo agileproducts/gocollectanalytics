@@ -64,21 +64,8 @@ func TestItMakesAnEvent(t *testing.T) {
 	}
 }
 
-/*func TestItSavesAnEventToLog(t *testing.T) {
-	data := copyURLValues(validData)
-	coll, err := NewCollector("log")
-	if err != nil {
-		t.Fatalf("It should be able to save an event to log")
-	}
-	event := createEvent(data)
-	bob := coll.saveEvent(event)
-	if bob != "log" { //rubbish test
-		t.Fatalf("It should be able to save an event to log")
-	}
-}*/
-
 func TestCollectData(t *testing.T) {
-	coll, err := NewCollector("log")
+	coll, err := LogCollector()
 	if err != nil {
 		t.Fatalf("It should be able to collect data")
 	}

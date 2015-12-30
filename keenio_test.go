@@ -22,13 +22,11 @@ func TestItRequiresAProjectID(t *testing.T) {
 	}
 }
 
-/*
-func TestItSavesAnEvent(t *testing.T) {
+func TestItSendsDataToKeenIO(t *testing.T) {
 	ks := keenIntegrationTestStore()
 	event := testEvent()
-	ks.logEvent(event)
+	ks.logDatapoint(event)
 }
-*/
 
 func keenIntegrationTestStore() *KeenIOStore {
 	kc := KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
