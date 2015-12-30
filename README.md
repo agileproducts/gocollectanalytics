@@ -24,14 +24,14 @@ A LogCollector just writes the sent data out as JSON to log.
 To send data to [KeenIO](https://keen.io/) you need to set up a Keen project and obtain a write key and a project ID. These need to be supplied as properties of a config object like this:
 
     
-  kc := gocollectanalytics.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
+    kc := gocollectanalytics.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
+    
+    keenioCollector, err := gocollectanalytics.KeenIOCollector(kc)
+      if err != nil {
+      log.Fatal(err)
+    }
 
-  keenioCollector, err := gocollectanalytics.KeenIOCollector(kc)
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  mux.HandleFunc("/collect", keenioCollector.CollectData)
+    mux.HandleFunc("/collect", keenioCollector.CollectData)
 
 At present this only stores KeenIO 'events' in a collection called 'Events'.
 
@@ -50,6 +50,6 @@ Following the [Google Measurement Protocol](https://developers.google.com/analyt
 
 An example of a valid request would be 
 
-    "/collect?v=1&tid=test&t=event&ec=test&ea=test"
+    /collect?v=1&tid=test&t=event&ec=test&ea=test
 
 
