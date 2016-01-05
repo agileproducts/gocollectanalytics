@@ -1,4 +1,4 @@
-package gocollectanalytics
+package keenio
 
 import (
 	_ "os"

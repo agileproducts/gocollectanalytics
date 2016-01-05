@@ -8,6 +8,7 @@ package main
 import (
 	"fmt"
 	"github.com/agileproducts/gocollectanalytics"
+	"github.com/agileproducts/gocollectanalytics/keenio"
 	"github.com/codegangsta/negroni"
 	"log"
 	"net/http"
@@ -21,8 +22,8 @@ func main() {
 	logStore := gocollectanalytics.NewLogstore()
 	logCollector := gocollectanalytics.NewCollector(logStore)
 
-	kc := gocollectanalytics.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
-	ks, err := gocollectanalytics.NewKeenIOStore(kc)
+	kc := keenio.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
+	ks, err := keenio.NewKeenIOStore(kc)
 	if err != nil {
 		log.Fatal(err)
 	}
