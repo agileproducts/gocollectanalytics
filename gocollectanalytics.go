@@ -5,7 +5,6 @@ Google Analytics -style styntax and save it in the desired datastore
 package gocollectanalytics
 
 import (
-	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -15,33 +14,25 @@ import (
 // A Collector provides handling for receiving data and recording it to
 // the given store
 type Collector struct {
-	Store Datastore
+	store Datastore
 }
 
 // A Datastore is any place to store data. It must satisfy this interface,
 // with a logDatapoint() method that accepts a data type
 type Datastore interface {
-	logDatapoint(interface{})
+	LogIt(interface{}) error
 }
 
-// A LogStore is a datastore that simply records to log, useful for debugging
-type LogStore struct{}
-
-//LogCollector returns a collector that just writes to a logfile datastore
-func LogCollector() (collector *Collector, err error) {
-
-	err = nil
-
-	collector = new(Collector)
-	collector.Store = new(LogStore)
-
-	return
-
+// NewCollector constructs a Collector with the specified type of store
+func NewCollector(ds Datastore) *Collector {
+	return &Collector{
+		store: ds,
+	}
 }
 
 // CollectData is a http.HandlerFunc to parse and validate querystring data
 // then save it as the appropriate type in the specified datastore.
-func (s *Collector) CollectData(w http.ResponseWriter, r *http.Request) {
+func (coll *Collector) CollectData(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	dataValid, err := validateParameters(params)
 	if dataValid != true {
@@ -49,21 +40,19 @@ func (s *Collector) CollectData(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
 		e := createEvent(params)
-		go s.Store.logDatapoint(e) // naive concurrency: http://marcio.io/2015/07/handling-1-million-requests-per-minute-with-golang/
+		go coll.record(e) // naive concurrency: http://marcio.io/2015/07/handling-1-million-requests-per-minute-with-golang/
 		w.WriteHeader(http.StatusOK)
 		//fmt.Fprint(w, "collected ok")
 	}
 }
 
-func (ls LogStore) logDatapoint(datatype interface{}) {
-
-	json, err := json.Marshal(datatype)
-
+// wraps the recording function of the underlying store
+func (coll *Collector) record(datatype interface{}) string {
+	err := coll.store.LogIt(datatype)
 	if err != nil {
-		log.Print(err)
+		return "boo!"
 	}
-
-	log.Printf("%+s", json)
+	return "ok"
 }
 
 // An Event is a user interactions with content that can be tracked independently

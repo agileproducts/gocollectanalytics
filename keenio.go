@@ -25,23 +25,8 @@ type KeenIOStore struct {
 	httpClient http.Client
 }
 
-// KeenIOCollector implements an http handler function for receiving data
-// and sending it to the project specified in the supplied config
-func KeenIOCollector(kc KeenIOConfig) (collector *Collector, err error) {
-
-	ks, err := newKeenIOStore(kc)
-
-	if err != nil {
-		return
-	}
-
-	collector = new(Collector)
-	collector.Store = ks
-	return
-}
-
-// sets up Keenio store based on supplied config
-func newKeenIOStore(kc KeenIOConfig) (*KeenIOStore, error) {
+// NewKeenIOStore returns a pointer to a Keenio store based on supplied config
+func NewKeenIOStore(kc KeenIOConfig) (*KeenIOStore, error) {
 	if kc.WriteKey == "" {
 		return nil, errors.New("Cannot use KeenIO store, write key not supplied")
 	}
@@ -52,31 +37,30 @@ func newKeenIOStore(kc KeenIOConfig) (*KeenIOStore, error) {
 }
 
 // logs supplied datapoint data to keenio
-func (ks *KeenIOStore) logDatapoint(datatype interface{}) {
+func (ks *KeenIOStore) LogIt(datatype interface{}) error {
 
 	//serialize
 	json, err := json.Marshal(datatype)
 
-	log.Printf("%+s", json)
-
 	if err != nil {
-		log.Print(err)
+		return err
 	}
 
 	//for the moment the use of a single collection called 'Events' is hardcoded in
 	keensays, err := ks.send(json, "/events/Events")
 
 	if err != nil {
-		log.Print(err)
+		return err
 	}
 
 	message, err := ioutil.ReadAll(keensays.Body)
 	if err != nil {
-		log.Print(err)
+		return err
 	}
 
 	log.Print(keensays.StatusCode)
 	log.Printf("%+s", message)
+	return nil
 
 }
 

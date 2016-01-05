@@ -18,18 +18,19 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	logCollector, _ := gocollectanalytics.LogCollector()
+	logStore := gocollectanalytics.NewLogstore()
+	logCollector := gocollectanalytics.NewCollector(logStore)
 
 	kc := gocollectanalytics.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
-
-	keenioCollector, err := gocollectanalytics.KeenIOCollector(kc)
+	ks, err := gocollectanalytics.NewKeenIOStore(kc)
 	if err != nil {
 		log.Fatal(err)
 	}
+	keenCollector := gocollectanalytics.NewCollector(ks)
 
 	mux.HandleFunc("/", SayHello)
 	mux.HandleFunc("/collecttolog", logCollector.CollectData)
-	mux.HandleFunc("/collecttokeenio", keenioCollector.CollectData)
+	mux.HandleFunc("/collecttokeenio", keenCollector.CollectData)
 
 	n := negroni.Classic()
 	n.UseHandler(mux)

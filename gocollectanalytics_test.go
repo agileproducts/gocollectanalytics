@@ -64,7 +64,17 @@ func TestItMakesAnEvent(t *testing.T) {
 	}
 }
 
-func TestCollectData(t *testing.T) {
+func TestCollector(t *testing.T) {
+	ls := NewLogstore()
+	coll := NewCollector(ls)
+	event := testEvent()
+	message := coll.record(event)
+	if message != "ok" {
+		t.Fatal("expected", "ok", "got", message)
+	}
+}
+
+/*func TestCollectData(t *testing.T) {
 	coll, err := LogCollector()
 	if err != nil {
 		t.Fatalf("It should be able to collect data")
@@ -75,7 +85,7 @@ func TestCollectData(t *testing.T) {
 	handler(w, req)
 
 	checkItWasOK(w, t)
-}
+}*/
 
 func checkItDoesntValidate(data url.Values, message string, t *testing.T) {
 	isOk, _ := validateParameters(data)
@@ -96,4 +106,8 @@ func checkItWasOK(w *httptest.ResponseRecorder, t *testing.T) {
 	if w.Code != http.StatusOK {
 		t.Fatalf("Unexpected status, expected 200 but got %d", w.Code)
 	}
+}
+
+func testEvent() Event {
+	return Event{Site: "BuildTest", Category: "TestCategory", Action: "TestAction"}
 }
