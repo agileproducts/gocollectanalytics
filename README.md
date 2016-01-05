@@ -13,7 +13,8 @@ The idea here is to create a web app similar to the one in the examples folder a
 
 Go get this project and import as a dependency to a web app. Implement as an http.HandlerFunc on a route like:
 
-    logCollector, _ := gocollectanalytics.LogCollector()
+    logStore := gocollectanalytics.NewLogstore()
+    logCollector := gocollectanalytics.NewCollector(logStore)
     
     mux.HandleFunc("/collect", logCollector.CollectData)
 
@@ -23,19 +24,23 @@ A LogCollector just writes the sent data out as JSON to log.
 
 To send data to [KeenIO](https://keen.io/) you need to set up a Keen project and obtain a write key and a project ID. These need to be supplied as properties of a config object like this:
 
-    
-    kc := gocollectanalytics.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
-    
-    keenioCollector, err := gocollectanalytics.KeenIOCollector(kc)
-      if err != nil {
-      log.Fatal(err)
-    }
+    import (
+      "github.com/agileproducts/gocollectanalytics"
+      "github.com/agileproducts/gocollectanalytics/keenio"
+    )
 
-    mux.HandleFunc("/collect", keenioCollector.CollectData)
+    
+    kc := keenio.KeenIOConfig{WriteKey: os.Getenv("KEENIO_WRITE_KEY"), ProjectID: os.Getenv("KEENIO_PROJECT_ID")}
+    ks, err := keenio.NewKeenIOStore(kc)
+    if err != nil {
+        log.Fatal(err)
+    }
+    keenCollector := gocollectanalytics.NewCollector(ks)
+
+    mux.HandleFunc("/collect", keenCollector.CollectData)
 
 At present this only stores KeenIO 'events' in a collection called 'Events'.
 
-THIS PART NEEDS BREAKING INTO A SUBPROJECT SO THAT YOU DONT *HAVE* TO USE KEENIO.
 
 
 ## Sending data from a client
